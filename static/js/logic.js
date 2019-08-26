@@ -1,10 +1,8 @@
-const API_KEY = "pk.eyJ1IjoidnlhbWF5a2luIiwiYSI6ImNqdzE4amRzbzBqZDg0M29kNDRkejdkNWwifQ.wyQb7NvEKlovRjXRKENS5Q";
-
-
 function createMap(earthquakes) {
-
+  
   // Define streetmap and darkmap layers
   var satellitemap = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
+    noWrap: true, 
     attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
     maxZoom: 18,
     id: "mapbox.satellite",
@@ -12,6 +10,7 @@ function createMap(earthquakes) {
   });
 
   var lightmap = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
+    noWrap: true, 
     attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
     maxZoom: 18,
     id: "mapbox.light",
@@ -19,6 +18,7 @@ function createMap(earthquakes) {
   });
 
   var streetmap = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
+    noWrap: true, 
     attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
     maxZoom: 18,
     id: "mapbox.streets",
@@ -26,15 +26,31 @@ function createMap(earthquakes) {
   });
 
   // Define a baseMaps object to hold our base layers
-  var baseMaps = {
+   var baseMaps = {
     "Grayscale": lightmap,
-    "Satellite Map": satellitemap,
-    "Street Map": streetmap
+    "Satellite": satellitemap,
+    "Streets": streetmap
   };
-  
+    
+  // Store our API endpoint inside queryUrl
+  var link = "https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_plates.json";
+  // Perform a GET request to the query URL
+  d3.json(link, function(data) {
+    L.geoJson(data, {
+      style: {
+        color: "orange",
+        weight: 3, 
+        fillColor: "white",
+        fillOpacity: 0
+      }
+      }
+    ); 
+
+  });
+
    // Create overlay object to hold our overlay layer
   var overlayMaps = {
-    "Earthquakes": earthquakes,
+    "Earthquakes": earthquakes
   };
 
   // Create our map, giving it the streetmap and earthquakes layers to display on load
@@ -74,21 +90,7 @@ return div;
 legend.addTo(map);
 
 
-// // Store our API endpoint inside queryUrl
-// var link = "https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_plates.json";
-// // Perform a GET request to the query URL
-// d3.json(link, function(data) {
-// console.log(data)
-//   L.geoJson(data, {
-//     style: {
-//       color: "orange",
-//       weight: 3, 
-//       fillColor: "white",
-//       fillOpacity: 0
-//     }
-//     }
-// ).addTo(map);
-//   })
+
 
 }
 
