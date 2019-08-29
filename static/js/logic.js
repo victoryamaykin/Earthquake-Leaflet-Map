@@ -1,3 +1,4 @@
+
 function createMap(earthquakes) {
   
   // Define streetmap and darkmap layers
