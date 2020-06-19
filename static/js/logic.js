@@ -1,32 +1,32 @@
-// API key
-const API_KEY = "pk.eyJ1IjoidnlhbWF5a2luIiwiYSI6ImNqdzE4amRzbzBqZDg0M29kNDRkejdkNWwifQ.wyQb7NvEKlovRjXRKENS5Q";
-
-function createMap(earthquakes) {
+function createMap(earthquakes, tectonicplates) {
   
   // Define streetmap and darkmap layers
-  var satellitemap = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
-    noWrap: true, 
-    attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
+  var satellitemap = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+    attribution: '© <a href="https://www.mapbox.com/about/maps/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> <strong><a href="https://www.mapbox.com/map-feedback/" target="_blank">Improve this map</a></strong>',
+    tileSize: 512,
     maxZoom: 18,
-    id: "mapbox.satellite",
+    zoomOffset: -1,
+    id: 'mapbox/satellite-streets-v11',
     accessToken: API_KEY
-  });
+    });
 
-  var lightmap = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
-    noWrap: true, 
-    attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
+  var lightmap = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+    attribution: '© <a href="https://www.mapbox.com/about/maps/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> <strong><a href="https://www.mapbox.com/map-feedback/" target="_blank">Improve this map</a></strong>',
+    tileSize: 512,
     maxZoom: 18,
-    id: "mapbox.light",
+    zoomOffset: -1,
+    id: 'mapbox/light-v10',
     accessToken: API_KEY
-  });
+    });
 
-  var streetmap = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
-    noWrap: true, 
-    attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
+  var streetmap = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+    attribution: '© <a href="https://www.mapbox.com/about/maps/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> <strong><a href="https://www.mapbox.com/map-feedback/" target="_blank">Improve this map</a></strong>',
+    tileSize: 512,
     maxZoom: 18,
-    id: "mapbox.streets",
+    zoomOffset: -1,
+    id: 'mapbox/streets-v11',
     accessToken: API_KEY
-  });
+    });
 
   // Define a baseMaps object to hold our base layers
    var baseMaps = {
@@ -34,45 +34,47 @@ function createMap(earthquakes) {
     "Satellite": satellitemap,
     "Streets": streetmap
   };
-    
-  // Store our API endpoint inside queryUrl
-  var link = "https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_plates.json";
-  // Perform a GET request to the query URL
-  d3.json(link, function(data) {
-    L.geoJson(data, {
-      style: {
-        color: "orange",
-        weight: 3, 
-        fillColor: "white",
-        fillOpacity: 0
-      }
-      }
-    ); 
+  
+var tectonicplates = new L.LayerGroup();
 
-  });
+// Here we make an AJAX call to get our Tectonic Plate geoJSON data.
+d3.json("https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_boundaries.json",
+function(platedata) {
+  // Adding our geoJSON data, along with style information, to the tectonicplates
+  // layer.
+  L.geoJson(platedata, {
+    color: "orange",
+    weight: 2
+  })
+  .addTo(tectonicplates);
+
+  // Then add the tectonicplates layer to the map.
+  tectonicplates.addTo(map);
+});
 
    // Create overlay object to hold our overlay layer
   var overlayMaps = {
+    "Tectonic Plates": tectonicplates,  
     "Earthquakes": earthquakes
   };
 
   // Create our map, giving it the streetmap and earthquakes layers to display on load
   var map = L.map("map", {
     center: [
-      30.09, -55.71
+      30.09, -15.71
     ],
-    zoom: 2,
-    layers: [lightmap, earthquakes]
+    zoom: 3,
+    layers: [lightmap, tectonicplates, earthquakes]
   });
 
   // Create a layer control
   // Pass in our baseMaps and overlayMaps
   // Add the layer control to the map
   L.control.layers(baseMaps, overlayMaps, {
-    collapsed: false
+    collapsed: true
   }).addTo(map);
 
-var legend = L.control({position: 'bottomleft'});
+var legend = L.control({position: 'bottomright'});
 
 legend.onAdd = function (map) {
 
@@ -93,15 +95,12 @@ return div;
 legend.addTo(map);
 
 
-
-
 }
 
 function createMarkers(response) {
   
   var earthquakes = response.features
 
-  console.log(earthquakes)
   var quakeMarkers = []
 
   for (var i = 0; i < earthquakes.length; i++) {
@@ -147,7 +146,8 @@ createMap(L.layerGroup(quakeMarkers));
 var queryUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson";
 
 // Perform a GET request to the query URL
-d3.json(queryUrl, createMarkers);
+d3.json(queryUrl, createMarkers, createMap);
+
 
 
     
