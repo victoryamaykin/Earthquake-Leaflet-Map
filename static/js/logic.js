@@ -1,3 +1,6 @@
+// API key
+const API_KEY = 'pk.eyJ1IjoidnlhbWF5a2luIiwiYSI6ImNqdzE4Z2Z6cTBqYTk0NW1td3pkdG8weHoifQ.3hQWt5XCCJhO0SJZoy-E1g';
+
 function createMap(earthquakes, tectonicplates) {
   
   // Define streetmap and darkmap layers
