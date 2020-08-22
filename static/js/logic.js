@@ -4,27 +4,30 @@ const API_KEY = "pk.eyJ1IjoidnlhbWF5a2luIiwiYSI6ImNqdzE4amRzbzBqZDg0M29kNDRkejdk
 function createMap(earthquakes) {
   
   // Define streetmap and darkmap layers
-  var satellitemap = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
-    noWrap: true, 
-    attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
+  var satellitemap = L.tileLayer("https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
+    attribution: "© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> <strong><a href='https://www.mapbox.com/map-feedback/' target='_blank'>Improve this map</a></strong>",
+    tileSize: 512,
     maxZoom: 18,
-    id: "mapbox.satellite",
+    zoomOffset: -1,
+    id: "mapbox/satellite-v9",
     accessToken: API_KEY
   });
 
-  var lightmap = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
-    noWrap: true, 
-    attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
+  var lightmap = L.tileLayer("https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
+    attribution: "© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> <strong><a href='https://www.mapbox.com/map-feedback/' target='_blank'>Improve this map</a></strong>",
+    tileSize: 512,
     maxZoom: 18,
-    id: "mapbox.light",
+    zoomOffset: -1,
+    id: "mapbox/light-v10",
     accessToken: API_KEY
   });
 
-  var streetmap = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
-    noWrap: true, 
-    attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
+  var outdoors = L.tileLayer("https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
+    attribution: "© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> <strong><a href='https://www.mapbox.com/map-feedback/' target='_blank'>Improve this map</a></strong>",
+    tileSize: 512,
     maxZoom: 18,
-    id: "mapbox.streets",
+    zoomOffset: -1,
+    id: "mapbox/outdoors-v11",
     accessToken: API_KEY
   });
 
@@ -32,7 +35,7 @@ function createMap(earthquakes) {
    var baseMaps = {
     "Grayscale": lightmap,
     "Satellite": satellitemap,
-    "Streets": streetmap
+    "Outdoors": outdoors
   };
     
   // Store our API endpoint inside queryUrl
@@ -51,9 +54,11 @@ function createMap(earthquakes) {
 
   });
 
+
    // Create overlay object to hold our overlay layer
   var overlayMaps = {
-    "Earthquakes": earthquakes
+    "Earthquakes": earthquakes,
+    "Tectonic Plates": tectonicplates
   };
 
   // Create our map, giving it the streetmap and earthquakes layers to display on load
@@ -91,6 +96,7 @@ return div;
 };
 
 legend.addTo(map);
+
 
 
 
@@ -150,4 +156,29 @@ var queryUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_we
 d3.json(queryUrl, createMarkers);
 
 
-    
+
+var tectonicplates = new L.LayerGroup();
+
+// Here we make an AJAX call to get our Tectonic Plate geoJSON data.
+d3.json("https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_boundaries.json",
+function(platedata) {
+  // Adding our geoJSON data, along with style information, to the tectonicplates
+  // layer.
+  L.geoJson(platedata, {
+    color: "orange",
+    weight: 2
+  })
+  .addTo(tectonicplates);
+
+  // Then add the tectonicplates layer to the map.
+  tectonicplates.addTo(map);
+});
+
+
+
+const provider = new OpenStreetMapProvider();
+
+const search = new GeoSearch.GeoSearchControl({
+  provider: new GeoSearch.OpenStreetMapProvider(),
+});
+map.addControl(search);
