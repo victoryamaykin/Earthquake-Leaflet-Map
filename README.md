@@ -1,5 +1,11 @@
 # Unit 17 | Assignment - Visualizing Data with Leaflet
 
+## Deployed Link 
+
+View the completed map: 
+
+https://victoryamaykin.github.io/Earthquake-Leaflet-Map/
+
 ## Background
 
 ![1-Logo](Images/1-Logo.png)
@@ -68,4 +74,4 @@ Your final product will be assessed on the following metrics:
 
 ## Copyright
 
-Data Boot Camp (C) 2018. All Rights Reserved.
+Data Boot Camp (C) 2020. All Rights Reserved.
